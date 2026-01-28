@@ -15,6 +15,7 @@
 
 - [Signal](https://signal.group/#CjQKIAzRArBDebFCtxH8Q_7ZzSaDWTpOb-xYFf_Wbyz4fYt9EhC32EP0XTs2ubjTBqZ6mv5w)
 - [GitHub](https://github.com/nimiah/rust-tutorial) + Git
+- [Excalidraw](https://excalidraw.com/)
 - Docker
 
 ---
