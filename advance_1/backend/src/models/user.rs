@@ -15,6 +15,6 @@ pub struct RequestUser {
 pub struct User {
     pub id: i32,
     pub name: String,
-    pub password: String,
+    pub password: Option<String>,
     pub email: Option<String>,
 }
