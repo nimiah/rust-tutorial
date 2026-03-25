@@ -113,8 +113,8 @@ pub async fn delete_user(
 )]
 pub async fn get_all_users(Extension(tx): Extension<DbTransaction>) -> ApiResult<Vec<User>> {
     let ret = UserService::new(tx).get_all_users().await;
-    match ret {
-        Some(users) => Response::ok(users),
-        None => Response::ok(vec![]),
-    }
+    // CAP NHAT (bai 2):
+    // - neu bang rong => fetch_all tra ve Vec rong
+    // - neu query loi => tra ve loi that su cho client thay
+    Response::from_result(ret)
 }

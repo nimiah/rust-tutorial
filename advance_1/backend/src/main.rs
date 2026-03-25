@@ -13,6 +13,7 @@ use utoipa::OpenApi;
 
 use crate::{
     handlers::{
+        article::{create_article, get_homepage_articles, get_my_articles},
         auth::login,
         user::{create_user, delete_user, edit_user, get_all_users, get_user_detail},
     },
@@ -27,11 +28,15 @@ use crate::{
         crate::handlers::user::delete_user,
         crate::handlers::user::get_user_detail,
         crate::handlers::user::get_all_users,
+        crate::handlers::article::create_article,
+        crate::handlers::article::get_homepage_articles,
+        crate::handlers::article::get_my_articles,
         crate::handlers::auth::login
     ),
     tags(
         (name = "Authentication", description = "Authentication endpoints"),
-        (name = "Users", description = "User management endpoints")
+        (name = "Users", description = "User management endpoints"),
+        (name = "Articles", description = "Article management endpoints")
     ),
     info(
         title = "Demo API",
@@ -62,6 +67,13 @@ async fn main() {
         .route("/api/users/{id}", get(get_user_detail))
         .route("/api/users/{id}", delete(delete_user))
         .route("/api/users", get(get_all_users))
+        // CAP NHAT (bai 3): route cho he thong article.
+        // - POST /api/articles: tao bai viet
+        // - GET /api/articles/homepage: lay bai public cho homepage
+        // - GET /api/articles/me: lay tat ca bai cua user dang login
+        .route("/api/articles", post(create_article))
+        .route("/api/articles/homepage", get(get_homepage_articles))
+        .route("/api/articles/me", get(get_my_articles))
         // auth routers
         .route("/api/auth/login", post(login))
         // middleware

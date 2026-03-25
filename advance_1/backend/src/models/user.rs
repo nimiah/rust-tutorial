@@ -9,6 +9,8 @@ pub struct RequestUser {
     pub name: String,
     #[validate(email)]
     pub email: String,
+    // CAP NHAT (bai 1): them field phone de request tu API co the day xuong database.
+    pub phone: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema, FromRow)]
@@ -17,4 +19,6 @@ pub struct User {
     pub name: String,
     pub password: String,
     pub email: Option<String>,
+    // CAP NHAT (bai 1): them field phone de du lieu doc tu bang users_demo map ve Rust duoc.
+    pub phone: Option<String>,
 }

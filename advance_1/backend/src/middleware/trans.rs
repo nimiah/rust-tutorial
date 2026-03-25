@@ -35,9 +35,9 @@ pub async fn start_transaction(
 
     if response.status().is_success() {
         tx.commit().await.expect("Cannot commit transaction");
-        println!("Commmited transaction");
+        println!("Commited transaction");
     } else {
-        _ = tx.rollback().await.expect("Cannot rolback transaction");
+        _ = tx.rollback().await.expect("Cannot rollback transaction");
         println!("Rollback transaction (status: {:#?})", response.status());
     }
 

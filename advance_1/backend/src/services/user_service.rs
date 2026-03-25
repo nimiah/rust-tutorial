@@ -33,8 +33,10 @@ impl UserService {
         }
     }
 
-    pub async fn get_all_users(&self) -> Option<Vec<User>> {
-        self.user_repo.get_all().await
+    pub async fn get_all_users(&self) -> Result<Vec<User>, String> {
+        // CAP NHAT (bai 2): giu nguyen loi tu repository day len handler,
+        // khong duoc bien loi thanh danh sach rong.
+        self.user_repo.get_all().await.map_err(|e| e.to_string())
     }
 
     pub async fn update_user(&self, id: i32, updated: RequestUser) -> Result<(), String> {

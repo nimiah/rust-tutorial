@@ -22,9 +22,11 @@ utoipa = { version = "5.4.0", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
 # Database
-sqlx = { version = "*", features = ["postgres", "runtime-tokio"] }
+# UPDATED (bai 3): bat feature `chrono` de map duoc truong time_created cua article.
+sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "chrono"] }
 
 # Environment variable
-dotenv = { version = "*" }
+dotenv = "0.15.0"
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
-chrono = "0.4.44"
+# UPDATED (bai 3): bat feature `serde` de DateTime<Utc> co the serialize/deserialize qua API.
+chrono = { version = "0.4.44", features = ["serde"] }
