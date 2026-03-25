@@ -54,7 +54,7 @@ impl UserService {
             .get_by_name(req_login.name)
             .await
             .map_err(|e| e.to_string())?;
-        if user.password != req_login.password {
+        if user.password != Some(req_login.password) {
             return Err(String::from("Password does not match"));
         }
 
