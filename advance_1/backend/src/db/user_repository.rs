@@ -2,6 +2,7 @@ use crate::{
     db::DbTransaction,
     models::user::{RequestUser, User},
 };
+use sqlx::Row;
 
 pub struct UserRepository {
     tx: DbTransaction,
@@ -16,16 +17,16 @@ impl UserRepository {
         let mut db = self.tx.lock().await;
 
         // execute sql to insert user to user table
-        let row = sqlx::query!(
-            "INSERT INTO users_demo (name, email) VALUES ($1, $2) RETURNING id",
-            user.name,
-            user.email
-        )
-        .fetch_one(&mut *db.as_mut())
-        .await?;
+        let row = sqlx::query("INSERT INTO users_demo (name, email) VALUES ($1, $2) RETURNING id")
+            .bind(&user.name)
+            .bind(&user.email)
+            .fetch_one(&mut *db.as_mut())
+            .await?;
+        
+        let id: i32 = row.try_get("id")?;
 
         // return user_id
-        Ok(row.id)
+        Ok(id)
     }
 
     pub async fn get_by_id(&self, id: i32) -> Result<User, sqlx::Error> {
