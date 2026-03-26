@@ -1,6 +1,6 @@
 use crate::{
     db::DbTransaction,
-    models::user::{RequestUser, User},
+    models::user::{RequestUser, RequestUserUpdate, User},
 };
 use sqlx::Row;
 
@@ -20,8 +20,8 @@ impl UserRepository {
         let row = sqlx::query("INSERT INTO users_demo (name, email) VALUES ($1, $2) RETURNING id")
             .bind(&user.name)
             .bind(&user.email)
-            .fetch_one(&mut *db.as_mut())
-            .await?;
+        .fetch_one(&mut *db.as_mut())
+        .await?;
         
         let id: i32 = row.try_get("id")?;
 
@@ -51,7 +51,7 @@ impl UserRepository {
         Ok(user)
     }
 
-    pub async fn update(&self, id: i32, updated: RequestUser) -> Result<(), sqlx::Error> {
+    pub async fn update(&self, id: i32, updated: RequestUserUpdate) -> Result<(), sqlx::Error> {
         let mut db = self.tx.lock().await;
 
         let ret = sqlx::query("UPDATE users_demo SET email = $1, name = $2 WHERE id = $3")

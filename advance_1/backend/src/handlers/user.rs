@@ -5,7 +5,7 @@ use validator::Validate;
 
 use crate::db::DbTransaction;
 use crate::models::common::{ApiResult, Response};
-use crate::models::user::{RequestUser, User};
+use crate::models::user::{RequestUser, RequestUserUpdate, User};
 use crate::services::user_service::UserService;
 
 #[utoipa::path(
@@ -16,24 +16,13 @@ use crate::services::user_service::UserService;
         (status = 200, description = "Created", body = Response<u32>),
     ),
     tag = "Users",
-    security(
-        ("Bearer" = [])
-    )
 )]
 pub async fn create_user(
     Extension(tx): Extension<DbTransaction>,
-    Extension(login_user): Extension<User>,
     Json(user): Json<RequestUser>,
 ) -> ApiResult<i32> {
     if let Err(e) = user.validate() {
         return Response::err(StatusCode::BAD_REQUEST, e.to_string());
-    }
-
-    if login_user.id != 1 {
-        return Response::err(
-            StatusCode::UNAUTHORIZED,
-            String::from("Only user id = 2 allow to create user"),
-        );
     }
 
     let ret = UserService::new(tx).create_user(user).await;
@@ -46,17 +35,25 @@ pub async fn create_user(
     params(
         ("id" = usize, Path, description = "User ID")
     ),
-    request_body = RequestUser,
+    request_body = RequestUserUpdate,
     responses(
         (status = 200, description = "Updated"),
     ),
-    tag = "Users"
+    tag = "Users",
+    security(
+        ("Bearer" = [])
+    )
 )]
 pub async fn edit_user(
     Path(id): Path<i32>,
     Extension(tx): Extension<DbTransaction>,
-    Json(user): Json<RequestUser>,
+    auth_user: Option<Extension<User>>,
+    Json(user): Json<RequestUserUpdate>,
 ) -> ApiResult<()> {
+    if auth_user.is_none() {
+        return Response::err(StatusCode::UNAUTHORIZED, "Unauthorized".to_string());
+    }
+
     let ret: Result<(), String> = UserService::new(tx).update_user(id, user).await;
     Response::from_result(ret)
 }
@@ -70,12 +67,20 @@ pub async fn edit_user(
     responses(
         (status = 200, description = "User detail", body = Response<User>),
     ),
-    tag = "Users"
+    tag = "Users",
+    security(
+        ("Bearer" = [])
+    )
 )]
 pub async fn get_user_detail(
     Path(id): Path<i32>,
+    auth_user: Option<Extension<User>>,
     Extension(tx): Extension<DbTransaction>,
 ) -> ApiResult<User> {
+    if auth_user.is_none() {
+        return Response::err(StatusCode::UNAUTHORIZED, "Unauthorized".to_string());
+    }
+
     let user = UserService::new(tx).get_user(id).await;
     Response::from_optional(user)
 }
@@ -91,12 +96,20 @@ pub async fn get_user_detail(
         (status = 404, description = "User not found"),
         (status = 401, description = "Unauthorized")
     ),
-    tag = "Users"
+    tag = "Users",
+    security(
+        ("Bearer" = [])
+    )
 )]
 pub async fn delete_user(
     Path(id): Path<i32>,
+    auth_user: Option<Extension<User>>,
     Extension(tx): Extension<DbTransaction>,
 ) -> ApiResult<()> {
+    if auth_user.is_none() {
+        return Response::err(StatusCode::UNAUTHORIZED, "Unauthorized".to_string());
+    }
+
     let ret = UserService::new(tx).delete_user(id).await;
     Response::from_result(ret)
 }
@@ -109,9 +122,19 @@ pub async fn delete_user(
         (status = 404, description = "User not found"),
         (status = 401, description = "Unauthorized")
     ),
-    tag = "Users"
+    tag = "Users",
+    security(
+        ("Bearer" = [])
+    )
 )]
-pub async fn get_all_users(Extension(tx): Extension<DbTransaction>) -> ApiResult<Vec<User>> {
+pub async fn get_all_users(
+    auth_user: Option<Extension<User>>,
+    Extension(tx): Extension<DbTransaction>
+) -> ApiResult<Vec<User>> {
+    if auth_user.is_none() {
+        return Response::err(StatusCode::UNAUTHORIZED, "Unauthorized".to_string());
+    }
+
     let ret = UserService::new(tx).get_all_users().await;
     match ret {
         Some(users) => Response::ok(users),

@@ -5,9 +5,9 @@ mod models;
 mod services;
 
 use axum::{
-    Router,
     middleware::{from_fn, from_fn_with_state},
     routing::{delete, get, post, put},
+    Router,
 };
 use utoipa::OpenApi;
 
@@ -18,6 +18,22 @@ use crate::{
     },
     middleware::SecurityAddon,
 };
+
+struct AppConfig {
+    server_port: u16,
+}
+
+impl AppConfig {
+    fn from_env() -> Self {
+        dotenv::dotenv().ok(); // Load dotenv
+        Self {
+            server_port: std::env::var("SERVER_PORT")
+                .unwrap_or_else(|_| "3000".to_string())
+                .parse()
+                .expect("SERVER_PORT must be a number"),
+        }
+    }
+}
 
 #[derive(OpenApi)]
 #[openapi(
@@ -48,6 +64,10 @@ struct ApiDoc;
 
 #[tokio::main]
 async fn main() {
+    // 1. Load config tập trung
+    let config = AppConfig::from_env();
+
+    // 2. Truyền config vào DB Pool
     // create connection pool
     let pool = db::Db::new()
         .connect()
@@ -73,9 +93,11 @@ async fn main() {
         // swagger - openapi
         .merge(middleware::swagger_ui(ApiDoc::openapi()));
 
+    // 3. Sử dụng Port từ config
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("/api/user started at http://localhost:3000");
+    let addr = format!("0.0.0.0:{}", config.server_port);
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    println!("/api/user started at {}", &addr);
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())

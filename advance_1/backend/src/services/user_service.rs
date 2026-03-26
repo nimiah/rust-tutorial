@@ -4,7 +4,7 @@ use crate::{
     db::{DbTransaction, user_repository::UserRepository},
     models::{
         auth::{Claims, RequestLogin},
-        user::{RequestUser, User},
+        user::{RequestUser, RequestUserUpdate, User},
     },
     services::tokenizer::Tokenizer,
 };
@@ -37,7 +37,7 @@ impl UserService {
         self.user_repo.get_all().await
     }
 
-    pub async fn update_user(&self, id: i32, updated: RequestUser) -> Result<(), String> {
+    pub async fn update_user(&self, id: i32, updated: RequestUserUpdate) -> Result<(), String> {
         self.user_repo
             .update(id, updated)
             .await

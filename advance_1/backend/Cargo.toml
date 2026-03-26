@@ -11,7 +11,7 @@ axum = "0.8.8"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 
-# io library
+# io library - async runtime
 tokio = { version = "1.50.0", features = ["full"] }
 
 # validate request
@@ -21,10 +21,10 @@ validator = { version = "0.20.0", features = ["derive"] }
 utoipa = { version = "5.4.0", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
-# Database
-sqlx = { version = "*", features = ["postgres", "runtime-tokio"] }
+# async Database --> PostgreSQL Server
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio"] }
 
 # Environment variable
-dotenv = { version = "*" }
+dotenv = { version = "0.15" }
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 chrono = "0.4.44"

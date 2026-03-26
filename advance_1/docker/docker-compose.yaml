@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:17
-    container_name: postgres-db
+    container_name: mypostgres
     restart: always
     environment:
       POSTGRES_USER: admin

@@ -9,6 +9,15 @@ pub struct RequestUser {
     pub name: String,
     #[validate(email)]
     pub email: String,
+    pub password: String,
+}
+
+#[derive(Deserialize, Debug, Clone, Serialize, ToSchema, Validate)]
+pub struct RequestUserUpdate {
+    #[validate(length(min = 2, max = 50))]
+    pub name: String,
+    #[validate(email)]
+    pub email: String,
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema, FromRow)]

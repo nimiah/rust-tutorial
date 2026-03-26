@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch advance_1 backend",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceRoot}/advance_1/backend/target/debug/backend",
+            "args": [],
+            "cwd": "${workspaceRoot}/advance_1/backend",
+            "sourceLanguages": ["rust"], // MUST have to show values of Rust Debug Variables
+            "env": {
+                "RUST_BACKTRACE": "1",
+                "DATABASE_URL": "postgres://admin:admin123@localhost:5432/mydatabase",
+                "SERVER_PORT": "3000",
+                "APP_ENV": "development",
+                "MAX_DB_CONNECTIONS": "5",
+            },
+
+            "sourceMap": {
+                "/data/20_Workspace/10_Active/rust-tutorial": "/home/michael/20_Workspace/10_Active/rust-tutorial",
+            },
+        }
+    ]
+}
