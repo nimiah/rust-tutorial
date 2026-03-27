@@ -1,3 +1,29 @@
+# How To Debug Interactive Mode in VSCode
+
+## Prerequisite:
+
+- rust toolchain: rust-src rust-analyzer
+- lldb
+- python3
+
+## VSCode with Extension:
+
+- CodeLLDB
+- Rust-Analyzer
+- (direnv)
+
+## VSCode config:
+
+```json
+// settings.json
+{
+  "lldb.library": "${LLDB_PATH}/lib/liblldb.so",
+  ...
+}
+```
+
+```json
+// launch.json
 {
   // Use IntelliSense to learn about possible attributes.
   // Hover to view descriptions of existing attributes.
@@ -26,3 +52,4 @@
     }
   ]
 }
+```
