@@ -22,19 +22,19 @@ use crate::services::user_service::UserService;
 )]
 pub async fn create_user(
     Extension(tx): Extension<DbTransaction>,
-    Extension(login_user): Extension<User>,
+   // Extension(login_user): Extension<User>,
     Json(user): Json<RequestUser>,
 ) -> ApiResult<i32> {
     if let Err(e) = user.validate() {
         return Response::err(StatusCode::BAD_REQUEST, e.to_string());
     }
 
-    if login_user.id != 1 {
-        return Response::err(
-            StatusCode::UNAUTHORIZED,
-            String::from("Only user id = 2 allow to create user"),
-        );
-    }
+   // if login_user.id != 1 {
+  //      return Response::err(
+    //        StatusCode::UNAUTHORIZED,
+      //      String::from("Only user id = 2 allow to create user"),
+        //);
+   // }
 
     let ret = UserService::new(tx).create_user(user).await;
     Response::from_result(ret)
