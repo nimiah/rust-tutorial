@@ -1,10 +1,8 @@
 CREATE TABLE IF NOT EXISTS users_demo (
     id serial primary key,
     name TEXT NOT NULL,
-    password TEXT NOT NULL,
-    email TEXT,
-    -- CAP NHAT (bai 1): them cot phone de luu thong tin lien he cua user.
-    phone TEXT
+    -- password TEXT NOT NULL,
+    email TEXT
 );
 
 -- CAP NHAT (bai 1): neu database da ton tai truoc do thi van bo sung duoc cot phone.

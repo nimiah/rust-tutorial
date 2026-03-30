@@ -17,7 +17,7 @@ pub struct RequestUser {
 pub struct User {
     pub id: i32,
     pub name: String,
-    pub password: String,
+    pub password: Option<String>,
     pub email: Option<String>,
     // CAP NHAT (bai 1): them field phone de du lieu doc tu bang users_demo map ve Rust duoc.
     pub phone: Option<String>,
