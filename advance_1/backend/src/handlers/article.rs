@@ -1,12 +1,15 @@
 use axum::{
-    extract::State,
+    extract::{State, Extension},
     Json,
 };
 use serde_json::json;
 
 use crate::{
     db::DbTransaction,
-    models::article::RequestArticle,
+    models::{
+        article::RequestArticle,
+        user::User,
+    },
     services::article_service::ArticleService,
 };
 
@@ -23,12 +26,13 @@ use utoipa::path;
 )]
 pub async fn create_article(
     State(tx): State<DbTransaction>,
+    Extension(user): Extension<User>, // 👈 lấy user từ middleware
     Json(payload): Json<RequestArticle>,
 ) -> Json<serde_json::Value> {
     let service = ArticleService::new(tx);
 
-    // TODO: replace mock user_id with authenticated user.id from token
-    let user_id = 1;
+    // ✅ lấy user_id từ user đã login
+    let user_id = user.id;
 
     match service.create_article(user_id, payload).await {
         Ok(id) => Json(json!({

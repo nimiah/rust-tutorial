@@ -22,8 +22,8 @@ impl ArticleRepository {
 
         let row = sqlx::query(
             r#"
-            INSERT INTO articles (user_id, title, body, visibility, views, likes)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO articles (user_id, title, body, visibility)
+            VALUES ($1, $2, $3, $4)
             RETURNING id
             "#
         )
@@ -31,8 +31,6 @@ impl ArticleRepository {
         .bind(&article.title)
         .bind(&article.body)
         .bind(&article.visibility)
-        .bind(0_i64)
-        .bind(0_i64)
         .fetch_one(&mut *db.as_mut())
         .await?;
 
