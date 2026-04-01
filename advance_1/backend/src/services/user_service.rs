@@ -51,7 +51,7 @@ impl UserService {
     pub async fn login(&self, req_login: RequestLogin) -> Result<String, String> {
         let user = self
             .user_repo
-            .get_by_name(req_login.name)
+            .get_by_email(req_login.email)
             .await
             .map_err(|e| e.to_string())?;
         if user.password != Some(req_login.password) {

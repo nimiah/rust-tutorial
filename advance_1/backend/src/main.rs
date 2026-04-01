@@ -5,14 +5,16 @@ mod models;
 mod services;
 
 use axum::{
-    Router,
     middleware::{from_fn, from_fn_with_state},
     routing::{delete, get, post, put},
+    Router,
 };
+use dotenv::dotenv;
 use utoipa::OpenApi;
 
 use crate::{
     handlers::{
+        article::get_all_articles,
         auth::login,
         user::{create_user, delete_user, edit_user, get_all_users, get_user_detail},
     },
@@ -27,6 +29,7 @@ use crate::{
         crate::handlers::user::delete_user,
         crate::handlers::user::get_user_detail,
         crate::handlers::user::get_all_users,
+        crate::handlers::article::get_all_articles,
         crate::handlers::auth::login
     ),
     tags(
@@ -36,7 +39,7 @@ use crate::{
     info(
         title = "Demo API",
         version = "0.1.0",
-        description = "REST API for ser management",
+        description = "REST API for user management",
         contact(
             name = "API Support",
             email = "support@example.com"
@@ -48,34 +51,47 @@ struct ApiDoc;
 
 #[tokio::main]
 async fn main() {
-    // create connection pool
+    dotenv::from_filename("dev.env").ok();
+
+    // Kết nối DB
     let pool = db::Db::new()
         .connect()
         .await
         .expect("Failed to connect to database");
 
-    // build our application with a single route
-    let app = Router::new()
-        // user routers
+    // ===== PUBLIC ROUTES =====
+    let public_routes = Router::new()
+        .route("/api/auth/login", post(login));
+
+    // ===== PROTECTED ROUTES =====
+    let protected_routes = Router::new()
         .route("/api/user", post(create_user))
         .route("/api/users/{id}", put(edit_user))
         .route("/api/users/{id}", get(get_user_detail))
         .route("/api/users/{id}", delete(delete_user))
         .route("/api/users", get(get_all_users))
-        // auth routers
-        .route("/api/auth/login", post(login))
-        // middleware
-        .route_layer(from_fn(middleware::authentication))
+        .route("/api/articles", get(get_all_articles))
+        // middleware auth (KHÔNG cần state)
+        .route_layer(from_fn(middleware::authentication));
+
+    // ===== APP =====
+    let app = Router::new()
+        .merge(public_routes)
+        .merge(protected_routes)
+        // middleware transaction (CÓ state)
         .route_layer(from_fn_with_state(
             pool.clone(),
             middleware::start_transaction,
         ))
-        // swagger - openapi
+        // swagger
         .merge(middleware::swagger_ui(ApiDoc::openapi()));
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("/api/user started at http://localhost:3000");
+    // chạy server
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+        .await
+        .unwrap();
+
+    println!("Server running at http://localhost:3000");
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
@@ -92,10 +108,12 @@ pub async fn shutdown_signal() {
 
     #[cfg(unix)]
     let terminate = async {
-        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-            .expect("Failed to install SIGTERM handler")
-            .recv()
-            .await;
+        tokio::signal::unix::signal(
+            tokio::signal::unix::SignalKind::terminate()
+        )
+        .expect("Failed to install SIGTERM handler")
+        .recv()
+        .await;
     };
 
     #[cfg(not(unix))]
@@ -103,10 +121,10 @@ pub async fn shutdown_signal() {
 
     tokio::select! {
         _ = ctrl_c => {
-            println!("Received Ctrl+C signal, starting graceful shutdown...");
+            println!("Shutdown (Ctrl+C)");
         },
         _ = terminate => {
-            println!("Received SIGTERM signal, starting graceful shutdown...");
+            println!("Shutdown (SIGTERM)");
         },
     }
 }

@@ -4,8 +4,8 @@ use validator::Validate;
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema, Validate)]
 pub struct RequestLogin {
-    #[validate(length(min = 2, max = 50))]
-    pub name: String,
+   // #[validate(length(min = 2, max = 50))]
+    pub email: String,
     #[validate(length(min = 2, max = 50))]
     pub password: String,
 }

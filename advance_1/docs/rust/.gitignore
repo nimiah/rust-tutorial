@@ -1,6 +1,6 @@
 # Secrets
 .env*
-
+dev.env*
 # Dependencies
 node_modules
 

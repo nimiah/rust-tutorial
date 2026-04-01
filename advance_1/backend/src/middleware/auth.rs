@@ -1,11 +1,10 @@
 use axum::{
     extract::Request,
-    http::{StatusCode, header::AUTHORIZATION},
+    http::{header::AUTHORIZATION, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
 use chrono::Utc;
-
 use crate::{
     db::DbTransaction,
     services::{tokenizer::Tokenizer, user_service::UserService},
@@ -14,54 +13,87 @@ use crate::{
 pub async fn authentication(mut req: Request, next: Next) -> Response {
     println!("Authentication middleware layer reached");
 
-    // Skip JWT verification for Swagger/OpenAPI documentation paths
+    // Cho phép swagger đi qua
     let path = req.uri().path();
     if path.starts_with("/swagger-ui") || path.starts_with("/api-docs") || path == "/openapi.json" {
-        println!("Skipping JWT verification for Swagger path: {}", path);
         return next.run(req).await;
     }
 
-    // Try to extract Authorization header
-    let auth_header = req.headers().get(AUTHORIZATION);
-    println!("Bearer Authentication {:#?}", auth_header);
-
-    if let Some(auth_value) = auth_header {
-        if let Ok(auth_str) = auth_value.to_str() {
-            // Extract Bearer token
-            if let Some(token) = auth_str.strip_prefix("Bearer ") {
-                let tokenizer = Tokenizer::new();
-
-                // Verify token
-                match tokenizer.verify(token) {
-                    Ok(claims) => {
-                        // Check if token is expired
-                        if claims.exp <= Utc::now().timestamp() {
-                            println!("Token expired");
-                            return (StatusCode::UNAUTHORIZED, "Token expired".to_string())
-                                .into_response();
-                        }
-
-                        if let Some(tx) = req.extensions().get::<DbTransaction>() {
-                            if let Some(user) =
-                                UserService::new(tx.clone()).get_user(claims.uid).await
-                            {
-                                // get user identifier
-                                req.extensions_mut().insert(user);
-                            }
-                        }
-
-                        println!("JWT token verified successfully");
-                    }
-                    Err(e) => {
-                        println!("JWT verification failed: {}", e);
-                        // Don't return error - let the handler decide if auth is required
-                        // Routes with AuthUser will fail, routes with PublicRoute will succeed
-                    }
-                }
-            }
+    // 1) Lấy Authorization header
+    let auth_header = match req.headers().get(AUTHORIZATION) {
+        //Some(v) => v,
+        Some(v) => {
+            println!("👉 RAW HEADER: {:?}", v);
+    v
+},
+        None => {
+            return (StatusCode::UNAUTHORIZED, "Missing Authorization header").into_response();
         }
+    };
+
+    // 2) Chuyển header sang string
+    let auth_str = match auth_header.to_str() {
+        //Ok(v) => v,
+        Ok(v) => {
+             println!("👉 AUTH STRING: {}", v);
+    v
+},
+        Err(_) => {
+            return (StatusCode::UNAUTHORIZED, "Invalid Authorization header").into_response();
+        }
+    };
+
+    // 3) Tách Bearer token
+    let token = match auth_str.strip_prefix("Bearer ") {
+        Some(t) => {
+            println!("🔥 TOKEN NHẬN ĐƯỢC: {}", t);
+            t
+        }
+            
+        None => {
+            return (StatusCode::UNAUTHORIZED, "Invalid Bearer token format").into_response();
+        }
+    };
+
+    let tokenizer = Tokenizer::new();
+
+    // 4) Verify token
+    let claims = match tokenizer.verify(token) {
+        Ok(c) => c,
+        Err(e) => {
+            println!("JWT verification failed: {}", e);
+            return (StatusCode::UNAUTHORIZED, "Invalid token").into_response();
+        }
+    };
+
+    // 5) Check token hết hạn
+    if claims.exp <= Utc::now().timestamp() {
+        return (StatusCode::UNAUTHORIZED, "Token expired").into_response();
     }
 
-    // Continue to next handler
+    // 6) Lấy DbTransaction từ request extensions
+    let tx = match req.extensions().get::<DbTransaction>() {
+        Some(tx) => tx.clone(),
+        None => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Database transaction not found",
+            )
+                .into_response();
+        }
+    };
+
+    // 7) Lấy user từ database theo uid trong token
+    let user = match UserService::new(tx).get_user(claims.uid).await {
+        Some(user) => user,
+        None => {
+            return (StatusCode::UNAUTHORIZED, "User not found").into_response();
+        }
+    };
+
+    // 8) NHÉT user vào request để handler dùng được Extension<User>
+    req.extensions_mut().insert(user);
+
+    // 9) Cho request đi tiếp
     next.run(req).await
 }

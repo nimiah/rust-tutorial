@@ -5,12 +5,12 @@ use utoipa::{
         security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
     },
 };
+use utoipa::openapi::security::SecurityRequirement;
 use utoipa_swagger_ui::SwaggerUi;
 
 pub fn swagger_ui(openapi: OpenApi) -> SwaggerUi {
     SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi)
 }
-
 pub struct SecurityAddon;
 
 impl Modify for SecurityAddon {
@@ -25,5 +25,8 @@ impl Modify for SecurityAddon {
                     .build(),
             ),
         );
+        openapi.security = Some(vec![
+            SecurityRequirement::new("Bearer",Vec::<String>::new())
+        ]);
     }
 }
