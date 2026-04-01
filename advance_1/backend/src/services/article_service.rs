@@ -1,7 +1,15 @@
 use crate::{
     db::{DbTransaction, article_repository::ArticleRepository},
-    models::article::{Article, RequestArticle},
+    models::article::Article,
 };
+
+#[derive(Debug)]
+pub enum ArticleServiceError {
+    NotFound,
+    Forbidden,
+    InvalidVisibility,
+    Database(String),
+}
 
 pub struct ArticleService {
     article_repo: ArticleRepository,
@@ -14,31 +22,34 @@ impl ArticleService {
         }
     }
 
-    pub async fn create_article(
+    pub async fn update_visibility(
         &self,
-        article: RequestArticle,
-        created_by_user: i32,
-    ) -> Result<i32, String> {
-        // CAP NHAT (bai 3): service tao bai viet, noi handler voi repository.
-        self.article_repo
-            .create(article, created_by_user)
+        user_id: i32,
+        article_id: i32,
+        new_visibility: String,
+    ) -> Result<Article, ArticleServiceError> {
+        let article = self
+            .article_repo
+            .get_by_id(article_id)
             .await
-            .map_err(|e| e.to_string())
-    }
+            .map_err(|e| ArticleServiceError::Database(e.to_string()))?;
 
-    pub async fn get_public_articles(&self) -> Result<Vec<Article>, String> {
-        // CAP NHAT (bai 3): service cho homepage.
-        self.article_repo
-            .get_public_articles()
-            .await
-            .map_err(|e| e.to_string())
-    }
+        let Some(article) = article else {
+            return Err(ArticleServiceError::NotFound);
+        };
 
-    pub async fn get_my_articles(&self, user_id: i32) -> Result<Vec<Article>, String> {
-        // CAP NHAT (bai 3): service cho man hinh bai viet cua user da login.
+        if article.owner_id != user_id {
+            return Err(ArticleServiceError::Forbidden);
+        }
+
+        match new_visibility.as_str() {
+            "public" | "unlisted" => {}
+            _ => return Err(ArticleServiceError::InvalidVisibility),
+        }
+
         self.article_repo
-            .get_articles_by_user(user_id)
+            .update_visibility(article_id, &new_visibility)
             .await
-            .map_err(|e| e.to_string())
+            .map_err(|e| ArticleServiceError::Database(e.to_string()))
     }
 }
