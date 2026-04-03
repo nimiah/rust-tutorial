@@ -1,23 +1,21 @@
 use axum::{
-    extract::{State, Extension},
+    extract::Extension, // 🔧 FIX: bỏ State — DbTransaction được inject bởi middleware trans.rs
     Json,
 };
-use serde_json::json;
 
 use crate::{
     db::DbTransaction,
     models::{
         article::RequestArticle,
+        common::{ApiResult, Response}, // 🔧 ADD: import ApiResult và Response theo chuẩn project
         user::User,
     },
     services::article_service::ArticleService,
 };
 
-use utoipa::path;
-
 #[utoipa::path(
     post,
-    path = "/api/article",
+    path = "/api/articles", // 🔧 FIX: đổi /api/article → /api/articles
     request_body = RequestArticle,
     responses(
         (status = 200, description = "Create article success")
@@ -25,23 +23,16 @@ use utoipa::path;
     tag = "Articles"
 )]
 pub async fn create_article(
-    State(tx): State<DbTransaction>,
-    Extension(user): Extension<User>, // 👈 lấy user từ middleware
+    Extension(tx): Extension<DbTransaction>, // 🔧 FIX: State(tx) → Extension(tx) theo pattern của project
+    Extension(user): Extension<User>,
     Json(payload): Json<RequestArticle>,
-) -> Json<serde_json::Value> {
+) -> ApiResult<i32> { // 🔧 FIX: Json<serde_json::Value> → ApiResult<i32> theo chuẩn Response<T>
     let service = ArticleService::new(tx);
 
-    // ✅ lấy user_id từ user đã login
+    // owner_id lấy từ user đã xác thực qua JWT — không hardcode
     let user_id = user.id;
 
-    match service.create_article(user_id, payload).await {
-        Ok(id) => Json(json!({
-            "message": "Success",
-            "value": id
-        })),
-        Err(err) => Json(json!({
-            "message": "Error",
-            "error": err
-        })),
-    }
+    let result = service.create_article(user_id, payload).await;
+
+    Response::from_result(result) // 🔧 FIX: dùng Response::from_result thay vì json!() thủ công
 }

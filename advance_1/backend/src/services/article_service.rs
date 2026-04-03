@@ -25,9 +25,9 @@ impl ArticleService {
             return Err("Title cannot be empty".to_string());
         }
 
-        if payload.visibility != "public" && payload.visibility != "unlisted" {
-            return Err("Invalid visibility".to_string());
-        }
+        // 🔧 FIX: xoá validate visibility bằng string
+        // Visibility là enum — serde tự reject JSON không hợp lệ khi deserialize
+        // Không thể và không cần so sánh enum với &str
 
         // ================= CALL REPOSITORY =================
 
