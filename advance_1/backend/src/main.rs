@@ -10,6 +10,7 @@ use axum::{
     routing::{delete, get, post, put},
 };
 use utoipa::OpenApi;
+use crate::handlers::article::{create_article, get_all_articles};
 
 use crate::{
     handlers::{
@@ -62,6 +63,7 @@ async fn main() {
         .route("/api/users/{id}", get(get_user_detail))
         .route("/api/users/{id}", delete(delete_user))
         .route("/api/users", get(get_all_users))
+        .route("/api/articles", post(create_article).get(get_all_articles))
         // auth routers
         .route("/api/auth/login", post(login))
         // middleware

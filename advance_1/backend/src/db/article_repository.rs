@@ -3,6 +3,7 @@ use crate::{
     models::article::{RequestArticle, Visibility}, // 🔧 ADD: import Visibility để dùng trong match convert
 };
 use sqlx::Row;
+use sqlx::query;
 
 pub struct ArticleRepository {
     tx: DbTransaction,
@@ -47,4 +48,28 @@ impl ArticleRepository {
         let id: i32 = row.try_get("id")?;
         Ok(id)
     }
+pub async fn get_all(
+    &self,
+    user_id: i32,
+) -> Result<Vec<String>, sqlx::Error> {
+    let mut db = self.tx.lock().await;
+
+    let rows = sqlx::query(
+        r#"
+        SELECT title
+        FROM articles
+        WHERE owner_id = $1 OR visibility = 'public'
+        ORDER BY time_created DESC
+        "#
+    )
+    .bind(user_id)
+    .fetch_all(&mut **db)
+    .await?;
+    let articles = rows
+        .into_iter()
+        .map(|row| row.get::<String, _>("title"))
+        .collect();
+
+    Ok(articles)
+}
 }

@@ -41,4 +41,16 @@ impl ArticleService {
             Err(_) => Err("Failed to create article".to_string()),
         }
     }
+
+    pub async fn get_all(
+        &self,
+        user_id: i32,
+    ) -> Result<Vec<String>, String> {
+        let result = self.article_repo.get_all(user_id).await;
+
+         match result {
+            Ok(data) => Ok(data),
+            Err(_) => Err("Failed to get articles".to_string()),
+        }
+    }
 }

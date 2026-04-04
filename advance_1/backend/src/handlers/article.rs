@@ -36,3 +36,14 @@ pub async fn create_article(
 
     Response::from_result(result) // 🔧 FIX: dùng Response::from_result thay vì json!() thủ công
 }
+pub async fn get_all_articles(
+    Extension(tx): Extension<DbTransaction>,
+    Extension(user): Extension<User>,
+) -> ApiResult<Vec<String>> {
+
+    let service = ArticleService::new(tx);
+
+    let articles = service.get_all(user.id).await;
+
+    Response::from_result(articles)
+}
