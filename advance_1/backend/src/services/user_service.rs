@@ -6,7 +6,7 @@ use crate::{
         auth::{Claims, RequestLogin},
         user::{RequestUser, User},
     },
-    services::tokenizer::Tokenizer,
+    services::{tokenizer::Tokenizer, pass_hash::PasswordUtil},
 };
 
 pub struct UserService {
@@ -20,8 +20,10 @@ impl UserService {
         }
     }
 
-    pub async fn create_user(&self, user: RequestUser) -> Result<i32, String> {
-        self.user_repo.create(user).await.map_err(|e| e.to_string())
+    pub async fn create_user(&self, user: RequestUser, password: String) -> Result<i32, String> {
+        let (password_hash, password_salt) = PasswordUtil::hash_password(&password)
+            .map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
+        self.user_repo.create(user, password_hash, password_salt).await.map_err(|e| e.to_string())
     }
 
     pub async fn get_user(&self, id: i32) -> Option<User> {
@@ -49,12 +51,20 @@ impl UserService {
     }
 
     pub async fn login(&self, req_login: RequestLogin) -> Result<String, String> {
-        let user = self
+        let user: User = self
             .user_repo
             .get_by_name(req_login.name)
             .await
-            .map_err(|e| e.to_string())?;
-        if user.password != Some(req_login.password) {
+            .map_err(|e: sqlx::Error| e.to_string())?;
+        
+        // Verify password using hash and salt
+        let is_valid = PasswordUtil::verify_password(
+            &req_login.password,
+            &user.password_hash,
+            &user.password_salt
+        ).map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
+        
+        if !is_valid {
             return Err(String::from("Password does not match"));
         }
 
