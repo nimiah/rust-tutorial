@@ -1,8 +1,4 @@
-// db/article_repository.rs
-use crate::{
-    db::DbTransaction,
-    models::article::{Article, ArticleVisibility},
-};
+use crate::{db::DbTransaction, models::article::Article};
 
 pub struct ArticleRepository {
     tx: DbTransaction,
@@ -10,32 +6,37 @@ pub struct ArticleRepository {
 
 impl ArticleRepository {
     pub fn new(tx: DbTransaction) -> Self {
-        ArticleRepository { tx }
+        Self { tx }
     }
 
-    pub async fn get_articles(
-        &self,
-        allowed_visibilities: Vec<ArticleVisibility>,
-    ) -> Option<Vec<Article>> {
+    pub async fn get_by_id(&self, article_id: i32) -> Result<Option<Article>, sqlx::Error> {
         let mut db = self.tx.lock().await;
 
-        // let smt = sqlx::query_as::<_, Article>("SELECT * FROM articles_demo")
-        //     .fetch_all(&mut *db.as_mut())
-        //     .await;
-        // println!(" *** Test smt: {:?}", smt);
+        sqlx::query_as::<_, Article>(
+            "SELECT id, owner_id, time_created, visibility, title, body, description, views, likes
+            FROM articles
+            WHERE id = $1",
+        )
+        .bind(article_id)
+        .fetch_optional(&mut *db.as_mut())
+        .await
+    }
 
-        let sql =
-            "SELECT * FROM articles_demo WHERE visibility = ANY($1) ORDER BY time_created DESC";
-        println!(
-            " === db - smt: {:?} - allowed_visibilities: {:?}",
-            sql, &allowed_visibilities
-        );
+    pub async fn update_visibility(
+        &self,
+        article_id: i32,
+        visibility: &str,
+    ) -> Result<Article, sqlx::Error> {
+        let mut db = self.tx.lock().await;
 
-        let result = sqlx::query_as::<_, Article>(sql)
-            .bind(&allowed_visibilities)
-            .fetch_all(&mut *db.as_mut())
-            .await;
-
-        result.ok()
+        sqlx::query_as::<_, Article> (
+          "UPDATE articles
+             SET visibility = $1
+             WHERE id = $2
+             RETURNING id, owner_id, time_created, visibility, title, body, description, views, likes",
+        ).bind(visibility)
+        .bind(article_id)
+        .fetch_one(&mut *db.as_mut())
+        .await
     }
 }
