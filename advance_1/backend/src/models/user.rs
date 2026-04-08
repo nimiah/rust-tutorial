@@ -14,7 +14,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(ToSchema, Validate)]
+#[derive(ToSchema, Validate, Deserialize)]
 pub struct RequestUser {
     pub name: String,
     pub email: String,
