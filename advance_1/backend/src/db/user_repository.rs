@@ -22,7 +22,7 @@ impl UserRepository {
             .bind(&user.email)
             .fetch_one(&mut *db.as_mut())
             .await?;
-        
+
         let id: i32 = row.try_get("id")?;
 
         // return user_id
@@ -40,11 +40,11 @@ impl UserRepository {
         Ok(user)
     }
 
-    pub async fn get_by_name(&self, name: String) -> Result<User, sqlx::Error> {
+    pub async fn get_by_email(&self, email: String) -> Result<User, sqlx::Error> {
         let mut db = self.tx.lock().await;
 
-        let user = sqlx::query_as::<_, User>("SELECT * FROM users_demo WHERE name = $1")
-            .bind(name)
+        let user = sqlx::query_as::<_, User>("SELECT * FROM users_demo WHERE email = $1")
+            .bind(email)
             .fetch_one(&mut *db.as_mut())
             .await?;
 
@@ -74,10 +74,7 @@ impl UserRepository {
             .fetch_all(&mut *db.as_mut())
             .await;
 
-        match result {
-            Err(_) => None,
-            Ok(users) => Some(users),
-        }
+        result.ok()
     }
 
     pub async fn delete(&self, id: i32) -> Result<(), sqlx::Error> {

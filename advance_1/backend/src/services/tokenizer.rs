@@ -1,5 +1,6 @@
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 
+use crate::config::AppConfig;
 use crate::models::auth::Claims;
 
 pub struct Tokenizer {
@@ -8,8 +9,10 @@ pub struct Tokenizer {
 
 impl Tokenizer {
     pub fn new() -> Self {
+        let config = AppConfig::get();
+
         Self {
-            secret: dotenv::var("SECRET_KEY").expect("SECRET_KEY must defined"),
+            secret: config.secret_key.clone(),
         }
     }
 
