@@ -51,9 +51,10 @@ impl UserService {
         // 1. tìm user theo email
         let user = self
             .user_repo
-            .get_by_email(req_login.email)
+            .get_by_email(req_login.email.clone())
             .await
             .map_err(|e| e.to_string())?;
+
         if user.password_hash != req_login.password {
             return Err(String::from("Password does not match"));
         }

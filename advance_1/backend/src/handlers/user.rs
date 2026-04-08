@@ -1,6 +1,7 @@
 use axum::Json;
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::db::DbTransaction;
@@ -8,10 +9,20 @@ use crate::models::common::{ApiResult, Response};
 use crate::models::user::{RequestUser, User};
 use crate::services::user_service::UserService;
 
+#[derive(Deserialize, Debug, Clone, Serialize, utoipa::ToSchema, Validate)]
+pub struct CreateUserRequest {
+    #[validate(length(min = 2, max = 50))]
+    pub name: String,
+    #[validate(email)]
+    pub email: String,
+    #[validate(length(min = 6))]
+    pub password: String,
+}
+
 #[utoipa::path(
     post,
     path = "/api/user",
-    request_body = RequestUser,
+    request_body = CreateUserRequest,
     responses(
         (status = 200, description = "Created", body = Response<u32>),
     ),

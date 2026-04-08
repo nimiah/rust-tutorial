@@ -6,6 +6,7 @@ mod middleware;
 mod models;
 mod services;
 
+use crate::handlers::article::{create_article, get_all_articles};
 use axum::{
     Router,
     middleware::{from_fn, from_fn_with_state},
@@ -69,6 +70,7 @@ fn app_router(pool: sqlx::PgPool) -> Router {
     let article_routes = Router::new().route("/api/articles", get(update_article_visibility));
 
     let auth_routes = Router::new()
+        .route("/api/articles", post(create_article).get(get_all_articles))
         // auth routers
         .route("/api/auth/login", post(login));
 
