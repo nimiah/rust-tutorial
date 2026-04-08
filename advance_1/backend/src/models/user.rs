@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use utoipa::ToSchema;
+use validator::Validate;
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema, FromRow)]
 pub struct User {
@@ -11,4 +12,10 @@ pub struct User {
     pub password_hash: String,
     pub password_salt: String,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(ToSchema, Validate)]
+pub struct RequestUser {
+    pub name: String,
+    pub email: String,
 }

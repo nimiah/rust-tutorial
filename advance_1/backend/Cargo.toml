@@ -22,9 +22,12 @@ utoipa = { version = "5.4.0", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
 # Database
-sqlx = { version = "*", features = ["postgres", "runtime-tokio"] }
+sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "chrono"] }
 
 # Environment variable
-dotenv = { version = "*" }
+dotenvy = { version = "0.15" }
+envy = { version = "0.4" }
+
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
-chrono = "0.4.44"
+
+chrono = { version = "0.4.44", features = ["serde"] }
