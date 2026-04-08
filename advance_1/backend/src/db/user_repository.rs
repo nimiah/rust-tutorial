@@ -13,6 +13,7 @@ impl UserRepository {
         UserRepository { tx }
     }
 
+    // ================= CREATE =================
     pub async fn create(&self, user: RequestUser) -> Result<i32, sqlx::Error> {
         let mut db = self.tx.lock().await;
 
@@ -29,6 +30,7 @@ impl UserRepository {
         Ok(id)
     }
 
+    // ================= GET BY ID =================
     pub async fn get_by_id(&self, id: i32) -> Result<User, sqlx::Error> {
         let mut db = self.tx.lock().await;
 
@@ -40,6 +42,7 @@ impl UserRepository {
         Ok(user)
     }
 
+    // ================= GET BY NAME =================
     pub async fn get_by_email(&self, email: String) -> Result<User, sqlx::Error> {
         let mut db = self.tx.lock().await;
 
@@ -51,12 +54,13 @@ impl UserRepository {
         Ok(user)
     }
 
+    // ================= UPDATE =================
     pub async fn update(&self, id: i32, updated: RequestUser) -> Result<(), sqlx::Error> {
         let mut db = self.tx.lock().await;
 
-        let ret = sqlx::query("UPDATE users_demo SET email = $1, name = $2 WHERE id = $3")
-            .bind(updated.email)
+        let ret = sqlx::query("UPDATE users_demo SET name = $1, email = $2 WHERE id = $3")
             .bind(updated.name)
+            .bind(updated.email)
             .bind(id)
             .execute(&mut *db.as_mut())
             .await?;
@@ -67,6 +71,7 @@ impl UserRepository {
         Err(sqlx::Error::RowNotFound)
     }
 
+    // ================= GET ALL =================
     pub async fn get_all(&self) -> Option<Vec<User>> {
         let mut db = self.tx.lock().await;
 
@@ -74,13 +79,17 @@ impl UserRepository {
             .fetch_all(&mut *db.as_mut())
             .await;
 
-        result.ok()
+        match result {
+            Err(_) => None,
+            Ok(users) => Some(users),
+        }
     }
 
+    // ================= DELETE =================
     pub async fn delete(&self, id: i32) -> Result<(), sqlx::Error> {
         let mut db = self.tx.lock().await;
 
-        _ = sqlx::query("DELETE FROM users_demo WHERE id = $1")
+        sqlx::query("DELETE FROM users_demo WHERE id = $1")
             .bind(id)
             .execute(&mut *db.as_mut())
             .await?;
