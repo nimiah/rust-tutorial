@@ -21,11 +21,6 @@ validator = { version = "0.20", features = ["derive"] }
 utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
 
-<<<<<<< HEAD
-# Database (Postgres)
-sqlx = { version = "0.7", features = ["postgres", "runtime-tokio", "macros"] }
-
-=======
 # Database
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "chrono"] }
 
@@ -33,20 +28,13 @@ sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "chrono"] }
 dotenvy = { version = "0.15" }
 envy = { version = "0.4" }
 
-
->>>>>>> main
 # Environment
 dotenv = "0.15"
 
 # JWT
-<<<<<<< HEAD
-jsonwebtoken = { version = "10", features = ["rust_crypto"] }
 
-# Time (FIX LỖI CHRONO Ở ĐÂY)
-chrono = { version = "0.4", features = ["serde"] }
-=======
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 
 # Time (FIX LỖI CHRONO Ở ĐÂY)
 chrono = { version = "0.4", features = ["serde"] }
->>>>>>> main
+
