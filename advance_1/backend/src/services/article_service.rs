@@ -1,10 +1,8 @@
 use crate::{
-<<<<<<< HEAD
     db::{article_repository::ArticleRepository, DbTransaction},
     models::article::RequestArticle,
 };
 
-=======
     db::{DbTransaction, article_repository::ArticleRepository},
     models::article::Article,
 };
@@ -17,23 +15,20 @@ pub enum ArticleServiceError {
     Database(String),
 }
 
->>>>>>> main
 pub struct ArticleService {
     article_repo: ArticleRepository,
 }
 
 impl ArticleService {
     pub fn new(tx: DbTransaction) -> Self {
-<<<<<<< HEAD
-        ArticleService {
-=======
+
         Self {
->>>>>>> main
+
             article_repo: ArticleRepository::new(tx),
         }
     }
 
-<<<<<<< HEAD
+
     pub async fn create_article(
         &self,
         user_id: i32,
@@ -65,7 +60,7 @@ impl ArticleService {
     pub async fn get_all(
         &self,
         user_id: i32,
-    ) -> Result<Vec<String>, String> {
+    ) -> Result<Vec<String>, sqlx::Error> {
         let result = self.article_repo.get_all(user_id).await;
 
          match result {
@@ -74,7 +69,7 @@ impl ArticleService {
         }
     }
 }
-=======
+
     pub async fn update_visibility(
         &self,
         user_id: i32,
@@ -106,4 +101,4 @@ impl ArticleService {
             .map_err(|e| ArticleServiceError::Database(e.to_string()))
     }
 }
->>>>>>> main
+

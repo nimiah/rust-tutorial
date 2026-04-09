@@ -1,13 +1,13 @@
-<<<<<<< HEAD
+
 use crate::{
     db::DbTransaction,
     models::article::{RequestArticle, Visibility}, // 🔧 ADD: import Visibility để dùng trong match convert
 };
 use sqlx::Row;
 use sqlx::query;
-=======
+
 use crate::{db::DbTransaction, models::article::Article};
->>>>>>> main
+
 
 pub struct ArticleRepository {
     tx: DbTransaction,
@@ -15,7 +15,7 @@ pub struct ArticleRepository {
 
 impl ArticleRepository {
     pub fn new(tx: DbTransaction) -> Self {
-<<<<<<< HEAD
+
         ArticleRepository { tx }
     }
 
@@ -77,7 +77,7 @@ pub async fn get_all(
 
     Ok(articles)
 }
-=======
+
         Self { tx }
     }
 
@@ -111,5 +111,5 @@ pub async fn get_all(
         .fetch_one(&mut *db.as_mut())
         .await
     }
->>>>>>> main
+
 }

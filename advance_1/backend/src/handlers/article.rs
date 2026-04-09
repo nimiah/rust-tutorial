@@ -1,5 +1,5 @@
 use axum::{
-<<<<<<< HEAD
+
     extract::Extension, // 🔧 FIX: bỏ State — DbTransaction được inject bởi middleware trans.rs
     Json,
 };
@@ -44,11 +44,11 @@ pub async fn get_all_articles(
 
     let service = ArticleService::new(tx);
 
-    let articles = service.get_all(user.id).await;
+    let  result = service.get_all(user.id).await;
 
-    Response::from_result(articles)
+    Response::from_result( result)
 }
-=======
+
     Json,
     extract::{Extension, Path},
     http::StatusCode,
@@ -113,4 +113,4 @@ pub async fn update_article_visibility(
         }
     }
 }
->>>>>>> main
+
