@@ -19,7 +19,14 @@ pub struct RequestLogin {
 //
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema)]
 pub struct Claims {
+<<<<<<< HEAD
     pub uid: i32,  // user id
     pub exp: i64,  // expire time
     pub iat: i64,  // issued at
 }
+=======
+    pub uid: i32, // user id
+    pub exp: i64, // expire time
+    pub iat: i64, // issued at
+}
+>>>>>>> main
