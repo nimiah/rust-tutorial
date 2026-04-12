@@ -3,6 +3,8 @@ use std::sync::Arc;
 use sqlx::{Error, Pool, Postgres, Transaction, postgres::PgPoolOptions};
 use tokio::sync::Mutex;
 
+use crate::config::AppConfig;
+
 pub type DbTransaction = Arc<Mutex<Transaction<'static, Postgres>>>;
 
 pub struct Db {
@@ -12,8 +14,10 @@ pub struct Db {
 
 impl Db {
     pub fn new() -> Self {
+        let config = AppConfig::get();
+
         Db {
-            url: dotenv::var("DATABASE_URL").expect("DATABASE_URL must defined"),
+            url: config.database_url.clone(),
             max_connection: 3,
         }
     }

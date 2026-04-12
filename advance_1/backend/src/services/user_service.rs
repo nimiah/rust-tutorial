@@ -27,9 +27,7 @@ impl UserService {
     }
 
     pub async fn get_user(&self, id: i32) -> Option<User> {
-        let result = self.user_repo.get_by_id(id).await;
-
-        match result {
+        match self.user_repo.get_by_id(id).await {
             Ok(user) => Some(user),
             Err(_) => None,
         }
@@ -50,10 +48,11 @@ impl UserService {
         self.user_repo.delete(id).await.map_err(|e| e.to_string())
     }
 
+    // ================= LOGIN =================
     pub async fn login(&self, req_login: RequestLogin) -> Result<String, String> {
         let user: User = self
             .user_repo
-            .get_by_name(req_login.name)
+            .get_by_email(req_login.email)
             .await
             .map_err(|e: sqlx::Error| e.to_string())?;
         
@@ -68,12 +67,13 @@ impl UserService {
             return Err(String::from("Password does not match"));
         }
 
-        // generate token
+        // 3. tạo token
         let claims = Claims {
             uid: user.id,
             exp: (Utc::now() + Duration::minutes(30)).timestamp(),
             iat: Utc::now().timestamp(),
         };
+
         Tokenizer::new().generate(claims)
     }
 }

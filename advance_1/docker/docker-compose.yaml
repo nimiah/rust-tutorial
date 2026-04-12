@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:18
+    image: postgres:16
     container_name: postgres-db
     restart: always
     environment:
@@ -13,6 +13,17 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SWAGGER_JSON_URL: http://localhost:3000/api-docs/openapi.json
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
