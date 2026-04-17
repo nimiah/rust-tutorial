@@ -48,7 +48,7 @@ impl UserRepository {
         let mut db = self.tx.lock().await;
 
         let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE name = $1")
-            .bind(name)
+            .bind(email)
             .fetch_one(&mut *db.as_mut())
             .await?;
 
@@ -62,7 +62,6 @@ impl UserRepository {
         let ret = sqlx::query("UPDATE users SET email = $1, name = $2 WHERE id = $3")
             .bind(updated.email)
             .bind(updated.name)
-            .bind(updated.email)
             .bind(id)
             .execute(&mut *db.as_mut())
             .await?;
