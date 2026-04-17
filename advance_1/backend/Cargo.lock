@@ -119,13 +119,15 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "base64",
  "chrono",
  "dotenv",
- "dotenvy",
- "envy",
+ "hex",
  "jsonwebtoken",
+ "rand",
  "serde",
  "serde_json",
+ "sha2",
  "sqlx",
  "tokio",
  "utoipa",

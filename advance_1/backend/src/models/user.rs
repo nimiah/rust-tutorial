@@ -9,12 +9,6 @@ use chrono::{DateTime, Utc};
 pub struct User {
     pub id: i32,
     pub name: String,
-<<<<<<< HEAD
-    pub password_hash: String,
-    pub password_salt: String,
-    pub email: String,
-    pub created_at: DateTime<Utc>,
-=======
     pub email: String,
     pub password_hash: String,
     pub password_salt: String,
@@ -24,6 +18,9 @@ pub struct User {
 #[derive(ToSchema, Validate, Deserialize)]
 pub struct RequestUser {
     pub name: String,
+    pub password_hash: String,
+    pub password_salt: String,
     pub email: String,
->>>>>>> main
+    pub created_at: DateTime<Utc>,
+
 }
