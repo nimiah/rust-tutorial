@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use utoipa::ToSchema;
 use validator::Validate;
-use chrono::{DateTime, Utc};
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema, FromRow)]
 pub struct User {
