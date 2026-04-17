@@ -50,6 +50,9 @@ pub async fn create_user(
     let request_user = RequestUser {
         name: user.name,
         email: user.email,
+        password_hash: String::new(),
+        password_salt: String::new(),
+        create_at: chrono::Utc::now(),
     };
     let ret = UserService::new(tx).create_user(request_user, user.password).await;
     Response::from_result(ret)
