@@ -1,8 +1,9 @@
+import ToggleTheme from "@/components/ToggleTheme";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import ToggleTheme from "@/components/ToggleTheme";
+import CountingProvider from "@/components/CountingProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,17 +32,17 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={true}
-          disableTransitionOnChange
-        >
-          <ToggleTheme />
-          <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
-            {children}
-          </main>
-        </ThemeProvider>
+        <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={true}
+            disableTransitionOnChange
+          >
+            <ToggleTheme />
+            <CountingProvider>{children}</CountingProvider>
+          </ThemeProvider>
+        </main>
       </body>
     </html>
   );

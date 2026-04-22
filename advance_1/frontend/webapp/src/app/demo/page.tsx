@@ -1,4 +1,5 @@
 import Counting from "@/components/Counting";
+import { useCounter } from "@/components/CountingProvider";
 import {
   AccordionItem,
   AccordionTrigger,

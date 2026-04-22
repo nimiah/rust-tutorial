@@ -1,3 +1,5 @@
+"use client";
+import { useCounter } from "@/components/CountingProvider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,9 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function CardDemo() {
+  const { counter } = useCounter();
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
+        {counter}
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
           Enter your email below to login to your account
