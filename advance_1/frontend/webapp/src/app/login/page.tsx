@@ -1,5 +1,4 @@
 "use client";
-import { useCounter } from "@/components/CountingProvider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,14 +11,39 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiRequest } from "@/lib/api";
+import { LoggedInUser, LoginRequest } from "@/lib/types/user";
+import { useLoggedInUser } from "@/store/user";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CardDemo() {
-  const { counter } = useCounter();
+  const router = useRouter();
+  const {user, actions: {setUser}} = useLoggedInUser();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function login() {
+    console.log({email, password})
+    const user = await apiRequest<LoginRequest, LoggedInUser>("/auth/login", {
+      email,
+      password,
+    });
+    
+    console.log("Login success", user);
+    setUser(user);
+  }
+
+  useEffect(() => {
+    if (user?.email) {
+      router.push("/");
+    }
+  }, [user])
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        {counter}
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
           Enter your email below to login to your account
@@ -38,6 +62,8 @@ export default function CardDemo() {
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -50,13 +76,19 @@ export default function CardDemo() {
                   Forgot your password?
                 </a>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" onClick={login}>
           Login
         </Button>
         <Button variant="outline" className="w-full">

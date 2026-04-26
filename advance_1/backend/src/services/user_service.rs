@@ -2,7 +2,7 @@ use chrono::{Duration, Utc};
 
 use crate::{
     db::{DbTransaction, user_repository::UserRepository},  models::{
-        auth::{Claims, RequestLogin},
+        auth::{Claims, LoggedInUser, RequestLogin},
         user::{CreateUserRequest, RequestUser, User},
     }, services::{pass_hash::PasswordUtil, tokenizer::Tokenizer}
 };
@@ -47,7 +47,7 @@ impl UserService {
     }
 
     // ================= LOGIN =================
-    pub async fn login(&self, req_login: RequestLogin) -> Result<String, String> {
+    pub async fn login(&self, req_login: RequestLogin) -> Result<LoggedInUser, String> {
         let user: User = self
             .user_repo
             .get_by_email(req_login.email)
@@ -67,11 +67,14 @@ impl UserService {
 
         // 3. tạo token
         let claims = Claims {
-            uid: user.id,
+            uid: user.id.clone(),
             exp: (Utc::now() + Duration::minutes(30)).timestamp(),
             iat: Utc::now().timestamp(),
         };
 
-        Tokenizer::new().generate(claims)
+        Tokenizer::new()
+            .generate(claims)
+            .map(|token| LoggedInUser{ email: user.email, name: user.name, token})
+
     }
 }

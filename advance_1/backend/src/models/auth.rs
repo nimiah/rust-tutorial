@@ -14,6 +14,13 @@ pub struct RequestLogin {
     pub password: String,
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct LoggedInUser {
+    pub email: String,
+    pub name: String,
+    pub token: String
+}
+
 //
 // ===== JWT CLAIMS =====
 //

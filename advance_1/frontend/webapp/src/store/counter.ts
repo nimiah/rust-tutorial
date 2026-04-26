@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 type CountingStore = {
@@ -37,6 +37,7 @@ export const useCounterStore = create<CountingStore>()(
       }),
       {
         name: "counting",
+        storage: createJSONStorage(() => sessionStorage),
         partialize: (state) => ({
           counter: state.counter, // 👈 persist ONLY state
         }),

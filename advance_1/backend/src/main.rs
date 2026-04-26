@@ -11,6 +11,7 @@ use axum::{
     middleware::{from_fn, from_fn_with_state},
     routing::{delete, get, post, put},
 };
+use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 
 use crate::{
@@ -58,6 +59,7 @@ struct ApiDoc;
 // ─── Router ──────────────────────────────────────────────────────────────────
 
 fn app_router(pool: sqlx::PgPool) -> Router {
+    let cors = CorsLayer::permissive();
     let user_routes = Router::new()
         // user routers
         .route("/api/user", post(create_user))
@@ -76,6 +78,7 @@ fn app_router(pool: sqlx::PgPool) -> Router {
         .merge(user_routes)
         .merge(article_routes)
         .merge(auth_routes)
+        .layer(cors)
         // middleware
         .route_layer(from_fn(middleware::authentication))
         .route_layer(from_fn_with_state(pool, middleware::start_transaction))
@@ -88,7 +91,7 @@ fn app_router(pool: sqlx::PgPool) -> Router {
 #[tokio::main]
 async fn main() {
     // 1. Nạp biến môi trường (Ưu tiên dev.env)
-    AppConfig::init();
+     AppConfig::init();
 
     // 2. Create connection pool
     let pool = db::Db::new()
@@ -99,7 +102,7 @@ async fn main() {
     // 3. Run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
         .await
-        .expect("Failed to bind port 3000");
+        .expect("Cannot start server!");
 
     println!("/api/user started at http://localhost:3000/api/users");
     println!("Swagger UI started at http://localhost:3000/swagger-ui/");
