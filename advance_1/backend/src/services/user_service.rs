@@ -1,12 +1,10 @@
 use chrono::{Duration, Utc};
 
 use crate::{
-    db::{DbTransaction, user_repository::UserRepository},
-    models::{
+    db::{DbTransaction, user_repository::UserRepository},  models::{
         auth::{Claims, RequestLogin},
-        user::{RequestUser, User},
-    },
-    services::{tokenizer::Tokenizer, pass_hash::PasswordUtil},
+        user::{CreateUserRequest, RequestUser, User},
+    }, services::{pass_hash::PasswordUtil, tokenizer::Tokenizer}
 };
 
 pub struct UserService {
@@ -20,8 +18,8 @@ impl UserService {
         }
     }
 
-    pub async fn create_user(&self, user: RequestUser, password: String) -> Result<i32, String> {
-        let (password_hash, password_salt) = PasswordUtil::hash_password(&password)
+    pub async fn create_user(&self, user: CreateUserRequest) -> Result<i32, String> {
+        let (password_hash, password_salt) = PasswordUtil::hash_password(&user.password)
             .map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
         self.user_repo.create(user, password_hash, password_salt).await.map_err(|e| e.to_string())
     }

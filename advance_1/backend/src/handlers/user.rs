@@ -2,22 +2,13 @@ use axum::Json;
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
 use validator::Validate;
-use serde::{Deserialize, Serialize};
 
 use crate::db::DbTransaction;
 use crate::models::common::{ApiResult, Response};
-use crate::models::user::{RequestUser, User};
+use crate::models::user::{CreateUserRequest, RequestUser, User};
 use crate::services::user_service::UserService;
 
-#[derive(Deserialize, Debug, Clone, Serialize, utoipa::ToSchema, Validate)]
-pub struct CreateUserRequest {
-    #[validate(length(min = 2, max = 50))]
-    pub name: String,
-    #[validate(email)]
-    pub email: String,
-    #[validate(length(min = 6))]
-    pub password: String,
-}
+
 
 #[utoipa::path(
     post,
@@ -33,25 +24,22 @@ pub struct CreateUserRequest {
 )]
 pub async fn create_user(
     Extension(tx): Extension<DbTransaction>,
-    Extension(login_user): Extension<User>,
+    // Extension(login_user): Extension<User>,
     Json(user): Json<CreateUserRequest>,
 ) -> ApiResult<i32> {
     if let Err(e) = user.validate() {
         return Response::err(StatusCode::BAD_REQUEST, e.to_string());
     }
 
-    if login_user.id != 1 {
-        return Response::err(
-            StatusCode::UNAUTHORIZED,
-            String::from("Only user id = 1 allow to create user"),
-        );
-    }
+    // if login_user.id != 1 {
+    //     return Response::err(
+    //         StatusCode::UNAUTHORIZED,
+    //         String::from("Only user id = 1 allow to create user"),
+    //     );
+    // }
 
-    let request_user = RequestUser {
-        name: user.name,
-        email: user.email,
-    };
-    let ret = UserService::new(tx).create_user(request_user, user.password).await;
+   
+    let ret = UserService::new(tx).create_user(user).await;
     Response::from_result(ret)
 }
 

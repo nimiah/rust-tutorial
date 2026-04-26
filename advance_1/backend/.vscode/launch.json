@@ -15,10 +15,6 @@
                 ]
             },
             "args": [],
-            "env": {
-                "RUST_BACKTRACE": "full",
-                "DATABASE_URL": "postgres://admin:admin123@localhost:5432/mydatabase",
-            }
         },
         {
             "name": "Debug unit tests in executable 'backend'",

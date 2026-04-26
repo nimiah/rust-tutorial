@@ -122,6 +122,8 @@ dependencies = [
  "base64",
  "chrono",
  "dotenv",
+ "dotenvy",
+ "envy",
  "hex",
  "jsonwebtoken",
  "rand",
