@@ -1,12 +1,14 @@
 import axios from "axios";
 import { ApiResponse } from "./types/user";
 
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:4000/api/";
+
 export async function apiRequest<TInput, TOutput>(
     apiPath: string, 
     input: TInput, 
     method: "post" | "get" = "post"): Promise<TOutput | null> {
   const api = axios.create({
-    baseURL: "http://localhost:3000/api/",
+    baseURL: BACKEND_BASE_URL,
     timeout: 10000,
     headers: { "X-Custom-Header": "foobar" },
   });
