@@ -100,12 +100,14 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // 3. Run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    let server_port = AppConfig::get().server_port.clone();
+    let addr = format!("0.0.0.0:{}", &server_port);
+    let listener = tokio::net::TcpListener::bind(&addr)
         .await
-        .expect("Cannot start server!");
+        .expect(&format!("Cannot listen to {}", &addr));
 
-    println!("/api/user started at http://localhost:3000/api/users");
-    println!("Swagger UI started at http://localhost:3000/swagger-ui/");
+    println!("/api/user started at http://localhost:{}/api/users", &server_port);
+    println!("Swagger UI started at http://localhost:{}/swagger-ui/", &server_port);
 
     // 4. Listen
     axum::serve(listener, app_router(pool))

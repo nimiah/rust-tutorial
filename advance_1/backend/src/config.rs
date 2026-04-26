@@ -2,16 +2,16 @@ use std::sync::OnceLock;
 
 use serde::Deserialize;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Clone, Default, Debug)]
 pub struct AppConfig {
     pub database_url: String,
     pub secret_key: String,
     #[serde(default="default_server_port")]
-    pub server_uri: String
+    pub server_port: String
 }
 
 fn default_server_port() -> String{
-    "0.0.0.0:3000".to_string()
+    "4000".to_string()
 }
 
 pub static CONFIG: OnceLock<AppConfig> = OnceLock::new();
@@ -33,10 +33,7 @@ impl AppConfig {
         // Chỉ nên in ở local để debug.
         #[cfg(debug_assertions)]
         {
-            println!(
-                "🚀 Config Loaded: DATABASE_URL={}, SECRET_KEY={}",
-                config.database_url, config.secret_key
-            );
+            dbg!(&config);
         }
 
         // Lưu vào Global Static
