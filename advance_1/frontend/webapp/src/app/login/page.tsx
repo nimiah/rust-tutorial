@@ -11,35 +11,27 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiRequest } from "@/lib/api";
-import { LoggedInUser, LoginRequest } from "@/lib/types/user";
+import { login } from "@/lib/be.api";
 import { useLoggedInUser } from "@/store/user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CardDemo() {
   const router = useRouter();
-  const {user, actions: {setUser}} = useLoggedInUser();
+  const { user } = useLoggedInUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function login() {
-    console.log({email, password})
-    const user = await apiRequest<LoginRequest, LoggedInUser>("/auth/login", {
-      email,
-      password,
-    });
-    
-    console.log("Login success", user);
-    setUser(user);
-  }
-
   useEffect(() => {
     if (user?.email) {
-      router.push("/");
+      setTimeout(() => router.push("/"), 3000);
     }
-  }, [user])
+  }, [user, router]);
+
+  if (user?.email) {
+    return <div>User already logged in, home page will be redirect in 3s!</div>;
+  }
 
   return (
     <Card className="w-full max-w-sm">
@@ -88,7 +80,11 @@ export default function CardDemo() {
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full" onClick={login}>
+        <Button
+          type="submit"
+          className="w-full"
+          onClick={async () => await login(email, password)}
+        >
           Login
         </Button>
         <Button variant="outline" className="w-full">
