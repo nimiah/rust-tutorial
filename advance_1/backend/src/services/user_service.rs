@@ -1,10 +1,12 @@
 use chrono::{Duration, Utc};
 
 use crate::{
-    db::{DbTransaction, user_repository::UserRepository},  models::{
+    db::{DbTransaction, user_repository::UserRepository},
+    models::{
         auth::{Claims, RequestLogin},
         user::{CreateUserRequest, RequestUser, User},
-    }, services::{pass_hash::PasswordUtil, tokenizer::Tokenizer}
+    },
+    services::{pass_hash::PasswordUtil, tokenizer::Tokenizer},
 };
 
 pub struct UserService {
@@ -21,7 +23,10 @@ impl UserService {
     pub async fn create_user(&self, user: CreateUserRequest) -> Result<i32, String> {
         let (password_hash, password_salt) = PasswordUtil::hash_password(&user.password)
             .map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
-        self.user_repo.create(user, password_hash, password_salt).await.map_err(|e| e.to_string())
+        self.user_repo
+            .create(user, password_hash, password_salt)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn get_user(&self, id: i32) -> Option<User> {
@@ -53,14 +58,15 @@ impl UserService {
             .get_by_email(req_login.email)
             .await
             .map_err(|e: sqlx::Error| e.to_string())?;
-        
+
         // Verify password using hash and salt
         let is_valid = PasswordUtil::verify_password(
             &req_login.password,
             &user.password_hash,
-            &user.password_salt
-        ).map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
-        
+            &user.password_salt,
+        )
+        .map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
+
         if !is_valid {
             return Err(String::from("Password does not match"));
         }

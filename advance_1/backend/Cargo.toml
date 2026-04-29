@@ -19,7 +19,7 @@ validator = { version = "0.20", features = ["derive"] }
 
 # OpenAPI / Swagger
 utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
-utoipa-swagger-ui = { version = "9", features = ["axum"] }
+utoipa-swagger-ui = { version = "9", features = ["axum", "vendored"] }
 
 # Database
 sqlx = { version = "*", features = ["postgres", "runtime-tokio", "chrono"] }

@@ -8,8 +8,6 @@ use crate::models::common::{ApiResult, Response};
 use crate::models::user::{CreateUserRequest, RequestUser, User};
 use crate::services::user_service::UserService;
 
-
-
 #[utoipa::path(
     post,
     path = "/api/user",
@@ -38,7 +36,6 @@ pub async fn create_user(
     //     );
     // }
 
-   
     let ret = UserService::new(tx).create_user(user).await;
     Response::from_result(ret)
 }

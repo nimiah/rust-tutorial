@@ -9,6 +9,14 @@ pub struct RequestUpdateArticleVisibility {
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize, ToSchema)]
+pub struct RequestCreateArticle {
+    pub title: String,
+    pub body: Option<String>,
+    pub description: Option<String>,
+    pub visibility: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Clone, Serialize, ToSchema)]
 pub struct ArticleVisibilityResponse {
     pub id: i32,
     pub owner_id: i32,

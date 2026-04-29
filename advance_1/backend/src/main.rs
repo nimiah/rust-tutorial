@@ -9,13 +9,16 @@ mod services;
 use axum::{
     Router,
     middleware::{from_fn, from_fn_with_state},
-    routing::{delete, get, post, put},
+    routing::{delete, get, patch, post, put},
 };
 use utoipa::OpenApi;
 
 use crate::{
     handlers::{
-        article::update_article_visibility,
+        article::{
+            create_article, get_all_articles, get_article_detail, like_article,
+            update_article_visibility,
+        },
         auth::login,
         user::{create_user, delete_user, edit_user, get_all_users, get_user_detail},
     },
@@ -34,6 +37,10 @@ use config::AppConfig;
         crate::handlers::user::delete_user,
         crate::handlers::user::get_user_detail,
         crate::handlers::user::get_all_users,
+        crate::handlers::article::get_all_articles,
+        crate::handlers::article::get_article_detail,
+        crate::handlers::article::create_article,
+        crate::handlers::article::like_article,
         crate::handlers::article::update_article_visibility,
         crate::handlers::auth::login
     ),
@@ -66,7 +73,14 @@ fn app_router(pool: sqlx::PgPool) -> Router {
         .route("/api/users/{id}", get(get_user_detail))
         .route("/api/users/{id}", delete(delete_user));
 
-    let article_routes = Router::new().route("/api/articles", get(update_article_visibility));
+    let article_routes = Router::new()
+        .route("/api/articles", get(get_all_articles).post(create_article))
+        .route("/api/articles/{id}", get(get_article_detail))
+        .route("/api/articles/{id}/like", patch(like_article))
+        .route(
+            "/api/articles/{id}/visibility",
+            patch(update_article_visibility),
+        );
 
     let auth_routes = Router::new()
         // auth routers
@@ -79,6 +93,7 @@ fn app_router(pool: sqlx::PgPool) -> Router {
         // middleware
         .route_layer(from_fn(middleware::authentication))
         .route_layer(from_fn_with_state(pool, middleware::start_transaction))
+        .layer(from_fn(middleware::cors))
         // swagger - openapi
         .merge(middleware::swagger_ui(ApiDoc::openapi()))
 }
@@ -96,13 +111,13 @@ async fn main() {
         .await
         .expect("Failed to connect to database");
 
-    // 3. Run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    // 3. Run our app with hyper, listening globally on port 3001
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001")
         .await
-        .expect("Failed to bind port 3000");
+        .expect("Failed to bind port 3001");
 
-    println!("/api/user started at http://localhost:3000/api/users");
-    println!("Swagger UI started at http://localhost:3000/swagger-ui/");
+    println!("/api/user started at http://localhost:3001/api/users");
+    println!("Swagger UI started at http://localhost:3001/swagger-ui/");
 
     // 4. Listen
     axum::serve(listener, app_router(pool))

@@ -46,7 +46,7 @@ pub async fn authentication(mut req: Request, next: Next) -> Response {
                                 UserService::new(tx.clone()).get_user(claims.uid).await
                             {
                                 // get user identifier
-                                  req.extensions_mut().insert(user);
+                                req.extensions_mut().insert(user);
                             }
                         }
 
