@@ -1,0 +1,43 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Web framework
+axum = "0.8"
+tower-http = { version = "0.5", features = ["cors"] }
+
+# Serialize / Deserialize
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Validate request
+validator = { version = "0.20", features = ["derive"] }
+
+# OpenAPI / Swagger
+utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
+
+# Database
+sqlx = { version = "*", features = ["postgres", "runtime-tokio", "chrono"] }
+
+# Environment variable
+dotenvy = { version = "0.15" }
+envy = { version = "0.4" }
+
+
+# Environment
+dotenv = "0.15"
+
+# JWT
+jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
+chrono = { version = "0.4.44", features = ["serde"] }
+# Xử lý mật khẩu với hàm băm sha2
+rand = "0.8.5"
+hex = "0.4.3"
+sha2 = "0.10.8"
+base64 = "0.22.1"

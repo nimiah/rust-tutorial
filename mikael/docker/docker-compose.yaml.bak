@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: feed-clone-db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d # Auto-run migrations
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SWAGGER_JSON_URL: http://localhost:3000/api-docs/openapi.json
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
