@@ -10,6 +10,9 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-query-devtools": "^5.100.5",
+    "@tanstack/react-virtual": "^3.13.24",
     "axios": "1.15.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -27,11 +30,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@faker-js/faker": "^10.4.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.5.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "postcss": "^8.5.10",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
