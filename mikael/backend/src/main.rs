@@ -16,7 +16,7 @@ use utoipa::OpenApi;
 
 use crate::{
     handlers::{
-        article::update_article_visibility,
+        article::{get_articles, update_article_visibility},
         auth::login,
         user::{create_user, delete_user, edit_user, get_all_users, get_user_detail},
     },
@@ -36,6 +36,7 @@ use config::AppConfig;
         crate::handlers::user::get_user_detail,
         crate::handlers::user::get_all_users,
         crate::handlers::article::update_article_visibility,
+        crate::handlers::article::get_articles,
         crate::handlers::auth::login
     ),
     tags(
@@ -68,7 +69,9 @@ fn app_router(pool: sqlx::PgPool) -> Router {
         .route("/api/users/{id}", get(get_user_detail))
         .route("/api/users/{id}", delete(delete_user));
 
-    let article_routes = Router::new().route("/api/articles", get(update_article_visibility));
+    let article_routes = Router::new()
+        .route("/api/articles", get(get_articles))
+        .route("/api/articles", put(update_article_visibility));
 
     let auth_routes = Router::new()
         // auth routers

@@ -1,4 +1,7 @@
-use crate::{db::DbTransaction, models::article::Article};
+use crate::{
+    db::DbTransaction,
+    models::article::{Article, ArticleVisibility},
+};
 
 pub struct ArticleRepository {
     tx: DbTransaction,
@@ -38,5 +41,41 @@ impl ArticleRepository {
         .bind(article_id)
         .fetch_one(&mut *db.as_mut())
         .await
+    }
+
+    pub async fn get_articles(
+        &self,
+        allowed_visibilities: Vec<ArticleVisibility>,
+    ) -> Option<Vec<Article>> {
+        let mut db = self.tx.lock().await;
+
+        // let smt = sqlx::query_as::<_, Article>("SELECT * FROM articles_demo")
+        //     .fetch_all(&mut *db.as_mut())
+        //     .await;
+        // println!(" *** Test smt: {:?}", smt);
+
+        // let sql = "SELECT * FROM articles_demo WHERE visibility = ANY($1) ORDER BY time_created DESC";
+        // let sql = "SELECT id, owner_id, title, visibility::TEXT as visibility, views, likes, time_created
+        let sql = "SELECT *, visibility::TEXT as visibility
+            FROM articles_demo WHERE visibility = ANY($1) ORDER BY time_created DESC";
+
+        println!(
+            " === db - smt: {:?} - allowed_visibilities: {:?}",
+            sql, &allowed_visibilities
+        );
+
+        let result = sqlx::query_as::<_, Article>(sql)
+            .bind(&allowed_visibilities)
+            .fetch_all(&mut *db.as_mut())
+            .await;
+
+        // result.ok()
+        match result {
+            Ok(data) => Some(data),
+            Err(e) => {
+                println!("🛑 THỰC SỰ CÓ LỖI DB: {:?}", e);
+                None
+            }
+        }
     }
 }

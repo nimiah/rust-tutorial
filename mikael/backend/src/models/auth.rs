@@ -10,7 +10,7 @@ pub struct RequestLogin {
     #[validate(email)]
     pub email: String,
 
-    #[validate(length(min = 6, max = 50))]
+    #[validate(length(min = 1, max = 50))]
     pub password: String,
 }
 

@@ -55,13 +55,17 @@ impl UserService {
             .map_err(|e: sqlx::Error| e.to_string())?;
         
         // Verify password using hash and salt
-        let is_valid = PasswordUtil::verify_password(
-            &req_login.password,
-            &user.password_hash,
-            &user.password_salt
-        ).map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
-        
-        if !is_valid {
+        // let is_valid = PasswordUtil::verify_password(
+        //     &req_login.password,
+        //     &user.password_hash,
+        //     &user.password_salt
+        // ).map_err(|e: Box<dyn std::error::Error>| e.to_string())?;
+
+        // if !is_valid {
+        //     return Err(String::from("Password does not match"));
+        // }
+
+        if user.password_hash != req_login.password {
             return Err(String::from("Password does not match"));
         }
 

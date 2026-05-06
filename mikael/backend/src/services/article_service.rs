@@ -1,6 +1,6 @@
 use crate::{
     db::{DbTransaction, article_repository::ArticleRepository},
-    models::article::Article,
+    models::article::{Article, ArticleVisibility},
 };
 
 #[derive(Debug)]
@@ -51,5 +51,21 @@ impl ArticleService {
             .update_visibility(article_id, &new_visibility)
             .await
             .map_err(|e| ArticleServiceError::Database(e.to_string()))
+    }
+
+    pub async fn get_articles(
+        &self,
+        user_id: Option<i32>,
+        requested_visibilities: Vec<ArticleVisibility>,
+    ) -> Option<Vec<Article>> {
+        let visibilities = match user_id {
+            None => vec![ArticleVisibility::Public],
+
+            Some(_) => requested_visibilities,
+        };
+
+        // Future extend filter: Roles/Permissions <-> Visibilities here..
+
+        self.article_repo.get_articles(visibilities).await
     }
 }
