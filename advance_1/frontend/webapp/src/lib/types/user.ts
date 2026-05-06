@@ -15,3 +15,10 @@ export type LoggedInUser = {
   name: string;
   token: string;
 };
+
+export type User = {
+  id: number,
+  name: String,
+  email: String,
+  created_at: number,
+}

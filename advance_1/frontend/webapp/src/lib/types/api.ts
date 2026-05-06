@@ -1,12 +1,12 @@
 import type { AxiosResponse } from "axios";
-import type { LoggedInUser, LoginRequest } from "./user";
+import type { LoggedInUser, LoginRequest, User } from "./user";
 
 export type ApiEndpoint =
   | {
       path: "/users/";
       method: "get";
-      input: { pageIndex: number; pageSize: number };
-      output: LoggedInUser[];
+      // input: { pageIndex: number; pageSize: number };
+      output: User[];
     }
   | {
       path: "/users/{id}";
@@ -26,9 +26,14 @@ export type ApiEndpoint =
       output: LoggedInUser;
     };
 
-export type PathParam<T extends ApiEndpoint> = T extends { pathParam: infer I }
-  ? [I]
-  : [];
+export type RequestOptions = {
+  timeout?: number;
+  signal?: AbortSignal;
+};
+
+export type PathParamWithOptions<T extends ApiEndpoint> = T extends { pathParam: infer I }
+  ? [I & RequestOptions]
+  : [options?: RequestOptions];
 export type Input<T extends ApiEndpoint> = T extends { input: infer I }
   ? [input: I]
   : [];

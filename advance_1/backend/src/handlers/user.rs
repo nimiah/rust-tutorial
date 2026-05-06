@@ -7,7 +7,8 @@ use crate::db::DbTransaction;
 use crate::models::common::{ApiResult, Response};
 use crate::models::user::{CreateUserRequest, RequestUser, User};
 use crate::services::user_service::UserService;
-
+use std::time::Duration;
+use tokio::time::sleep;
 
 
 #[utoipa::path(
@@ -116,6 +117,9 @@ pub async fn delete_user(
 )]
 pub async fn get_all_users(Extension(tx): Extension<DbTransaction>) -> ApiResult<Vec<User>> {
     let ret = UserService::new(tx).get_all_users().await;
+
+    sleep(Duration::from_secs(10)).await;
+
     match ret {
         Some(users) => Response::ok(users),
         None => Response::ok(vec![]),

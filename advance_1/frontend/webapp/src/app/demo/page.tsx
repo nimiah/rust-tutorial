@@ -1,56 +1,45 @@
-import Counting from "@/components/Counting";
-import { useCounter } from "@/components/CountingProvider";
-import {
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  Accordion,
-} from "@/components/ui/accordion";
+'use client'
+import useAbortController from "@/hooks/useAbortController";
+import { api } from "@/lib/api";
+import { User } from "@/lib/types/user";
 import Link from "next/link";
-import { Suspense } from "react";
+import { setuid } from "process";
+import { useEffect, useState } from "react";
 
 export default function Demo() {
   return (
     <>
       <Link href={"/"}>Home</Link>
-      <Suspense fallback={<Counting />}>
-        <MyComponent />
-      </Suspense>
+     <UserList />
     </>
   );
 }
 
-async function MyComponent() {
-  await new Promise((resolve) => setTimeout(resolve, 10000));
+async function UserList() {
+  const signal = useAbortController();
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    
+    
+    void (async () => {
+      const [users, error] = await api.request(
+        "/users/", 
+        { signal, timeout: 2000 }
+      ).get();
+      if (error === null && !!users) setUsers(users)
+    })();
+
+    // api.request("/users/").get().then(([users, error]) => {
+    //   if (error === null && !!users) setUsers(users);
+    // })
+  }, [])
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      defaultValue="shipping"
-      className="max-w-lg"
-    >
-      <AccordionItem value="shipping">
-        <AccordionTrigger>What are your shipping options?</AccordionTrigger>
-        <AccordionContent>
-          We offer standard (5-7 days), express (2-3 days), and overnight
-          shipping. Free shipping on international orders.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="returns">
-        <AccordionTrigger>What is your return policy?</AccordionTrigger>
-        <AccordionContent>
-          Returns accepted within 30 days. Items must be unused and in original
-          packaging. Refunds processed within 5-7 business days.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="support">
-        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
-        <AccordionContent>
-          Reach us via email, live chat, or phone. We respond within 24 hours
-          during business days.
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+   <ul>
+    {
+      users.map(user => (<li>Id: {user.id} - name: {user.name} - email: {user.email}</li>))
+    }
+   </ul>
   );
 }
