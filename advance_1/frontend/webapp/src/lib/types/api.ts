@@ -3,7 +3,7 @@ import type { LoggedInUser, LoginRequest, User } from "./user";
 
 export type ApiEndpoint =
   | {
-      path: "/users/";
+      path: "/users";
       method: "get";
       // input: { pageIndex: number; pageSize: number };
       output: User[];
@@ -31,7 +31,9 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
-export type PathParamWithOptions<T extends ApiEndpoint> = T extends { pathParam: infer I }
+export type PathParamWithOptions<T extends ApiEndpoint> = T extends {
+  pathParam: infer I;
+}
   ? [I & RequestOptions]
   : [options?: RequestOptions];
 export type Input<T extends ApiEndpoint> = T extends { input: infer I }
